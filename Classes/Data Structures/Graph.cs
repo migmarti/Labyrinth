@@ -20,12 +20,10 @@ namespace Labyrinth.Classes {
         }
 
         public void AddNode(Node<T> node) {
-            // adds a node to the graph
             nodeSet.Add(node);
         }
 
         public void AddNode(T value) {
-            // adds a node to the graph
             nodeSet.Add(new Node<T>(value));
         }
 
@@ -58,20 +56,15 @@ namespace Labyrinth.Classes {
         }
 
         public bool Remove(T value) {
-            // first remove the node from the nodeset
             Node<T> nodeToRemove = (Node<T>)nodeSet.FindByValue(value);
             if (nodeToRemove == null)
-                // node wasn't found
                 return false;
 
-            // otherwise, the node was found
             nodeSet.Remove(nodeToRemove);
 
-            // enumerate through each node in the nodeSet, removing edges to this node
             foreach (Node<T> gnode in nodeSet) {
                 int index = gnode.Neighbors.IndexOf(nodeToRemove);
                 if (index != -1) {
-                    // remove the reference to the node and associated cost
                     gnode.Neighbors.RemoveAt(index);
                 }
             }
@@ -89,7 +82,74 @@ namespace Labyrinth.Classes {
             get { return nodeSet.Count; }
         }
 
+        public void setDistancesFromGoal(T goal) {
+            int distance = 1;
+            bool addedNode = false;
+            NodeList<T> neighbors = new NodeList<T>();
+            Stack<Node<T>> stack = new Stack<Node<T>>();
+            Node<T> goalNode = Get(goal);
+            goalNode.distanceFromGoal = 0;
+            stack.Push(goalNode);
+        
+            while (stack.Count != 0) {
+                Node<T> currentNode = stack.Pop();
+                currentNode.distanceSet = true;
+                addedNode = false;
+                for (int i = 0; i < currentNode.Neighbors.Count; i++) {
+                    Node<T> neighbor = Get(currentNode.Neighbors[i].Value);
+                    if (!neighbor.distanceSet) {
+                        neighbor.distanceFromGoal = distance;
+                        addedNode = true;
+                        stack.Push(neighbor);
+                    }
+                }
+                if (addedNode) {
+                    distance++;
+                }
+            }
+        }
+
+        public NodeList<T> getBestPath(T start, T goal) {
+            setDistancesFromGoal(goal);
+            int minCost = int.MaxValue;
+            bool addedNode = false;
+            NodeList<T> nodesTraversed = new NodeList<T>();
+            Node<T> startNode = Get(start);
+            Node<T> goalNode = Get(goal);
+            Node<T> bestNeighbor = new Node<T>();
+            NodeList<T> neighbors = new NodeList<T>();
+            Stack<Node<T>> stack = new Stack<Node<T>>();
+            stack.Push(startNode);
+
+            while (stack.Count != 0) {
+                Node<T> currentNode = stack.Pop();
+                nodesTraversed.Add(currentNode);
+                addedNode = false;
+                currentNode.visited = true;
+                if (currentNode == goalNode) {
+                    break;
+                }
+                else {
+                    for (int i = 0; i < currentNode.Neighbors.Count; i++) {
+                        Node<T> neighbor = Get(currentNode.Neighbors[i].Value);
+                        int cost = neighbor.distanceFromGoal;
+                        if (cost < minCost && !neighbor.visited) {
+                            bestNeighbor = neighbor;
+                            minCost = cost;
+                            addedNode = true;
+                        }
+                    }
+                    if (addedNode) {
+                        stack.Push(bestNeighbor);
+                    }
+                }
+            }
+            return nodesTraversed;
+        }
+
+        /*
         public NodeList<T> DLS(T start, T goal, int depthLimit) {
+            bool addedDepth = false;
             NodeList<T> DLSNodes = new NodeList<T>();
             Node<T> startNode = Get(start);
             Node<T> goalNode = Get(goal);
@@ -98,33 +158,34 @@ namespace Labyrinth.Classes {
             stack.Push(startNode);
             int depth = 0;
 
-            Console.WriteLine();
             while (stack.Count != 0) {
                 Node<T> currentNode = stack.Pop();
                 DLSNodes.Add(currentNode);
                 currentNode.visited = true;
                 if (currentNode == goalNode) {
-                    Console.WriteLine("\nSolved!");
                     break;
                 }
                 if (depth == depthLimit) {
                     continue;
                 }
                 else {
-                    Console.Write(currentNode.Neighbors.Count + " ");
                     for (int i = 0; i < currentNode.Neighbors.Count; i++) {
 
                         Node<T> neighbor = Get(currentNode.Neighbors[i].Value);
                         if (!neighbor.visited) {
                             stack.Push(neighbor);
                             neighbor.visited = true;
-                        } 
+                            addedDepth = true;
+                        }
+                    }
+                    if (addedDepth) {
+                        depth++;
                     }
                 }
-                depth++;
             }
             return DLSNodes;
         }
+        */
 
         IEnumerator IEnumerable.GetEnumerator() {
             return this.GetEnumerator();

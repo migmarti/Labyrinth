@@ -10,11 +10,19 @@ namespace Labyrinth.Classes {
         private T data;
         private NodeList<T> neighbors;
         public bool visited { get; set; }
+        public bool distanceSet { get; set; }
+        public int distanceFromGoal { get; set; }
+
 
         public Node(T data) {
             this.neighbors = new NodeList<T>();
             this.data = data;
-            visited = false;
+            this.visited = false;
+        }
+
+        public Node() {
+            this.neighbors = new NodeList<T>();
+            this.visited = false;
         }
 
         public T Value {

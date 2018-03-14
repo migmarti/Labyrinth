@@ -21,6 +21,7 @@ namespace Labyrinth.Classes {
             this.cells = new Cell[height, width];
             this.rows = this.cells.GetLength(0);
             this.columns = this.cells.GetLength(1);
+            generate();
         }
 
         public void generate() {
@@ -173,6 +174,26 @@ namespace Labyrinth.Classes {
                 }
             }
             return paths;
+        }
+
+        public void draw(Graphics g, int panelWidth, int panelHeight) {
+            int padding = 5;
+            int w = this.width;
+            int h = this.height;
+            int xsize = panelWidth / w, ysize = panelHeight / h;
+            Pen pen = new Pen(Color.Blue, 2);
+            SolidBrush agentBrush = new SolidBrush(Color.Yellow);
+            Point startPoint = new Point(0, 0);
+
+            for (int i = 0; i < h; i++) {
+                for (int j = 0; j < w; j++) {
+                    int x = startPoint.X;
+                    int y = startPoint.Y;
+                    this.cells[i, j].draw(g, pen, agentBrush, x, y, xsize, ysize, padding);
+                    startPoint = new Point(startPoint.X + xsize, startPoint.Y);
+                }
+                startPoint = new Point(0, startPoint.Y + ysize);
+            }
         }
     }
 }

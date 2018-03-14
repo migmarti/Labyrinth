@@ -15,8 +15,7 @@ namespace Labyrinth {
 
         Maze maze;
         Agent agent;
-        Random rnd = new Random();
-        List<Point> points;
+        List<Point> directions;
         int i = 0;
         bool newMaze = false;
         System.Timers.Timer aTimer;
@@ -28,7 +27,6 @@ namespace Labyrinth {
 
         private void buttonGenerate_Click(object sender, EventArgs e) {
             maze = new Maze(Convert.ToInt32(nupWidth.Value), Convert.ToInt32(nupHeight.Value));
-            maze.generate();
             newMaze = true;
             buttonRefresh.Enabled = true;
             if (aTimer != null) {
@@ -40,67 +38,22 @@ namespace Labyrinth {
         private void panel1_Paint(object sender, PaintEventArgs e) {
             if (maze != null && maze.width > 0 && maze.height > 0) {
                 var g = e.Graphics;
-                int padding = 5;
-                int w = maze.width;
-                int h = maze.height;
-                int xsize = panel1.Width / w, ysize = panel1.Height / h;
-                Pen pen = new Pen(Color.Blue);
-                SolidBrush startBrush = new SolidBrush(Color.Green);
-                SolidBrush endBrush = new SolidBrush(Color.Red);
-                SolidBrush agentBrush = new SolidBrush(Color.Yellow);
-                Point startPoint = new Point(0, 0);
-                pen.Width = 2;
-
-                for (int i = 0; i < h; i++) {
-                    for (int j = 0; j < w; j++) {
-                        int x = startPoint.X;
-                        int y = startPoint.Y;
-
-                        if (maze.cells[i, j].start) {
-                            g.FillRectangle(startBrush, new Rectangle(x + padding, y + padding, 
-                                xsize - padding * 2, ysize - padding * 2));
-                            if (newMaze) {
-                                agent = new Agent(maze, i, j);
-                                newMaze = false;
-                            }
-                        }
-                        else if (maze.cells[i, j].end) {
-                            g.FillRectangle(endBrush, new Rectangle(x + padding, y + padding,
-                                xsize - padding * 2, ysize - padding * 2));
-                        }
-
-                        if (maze.cells[i, j].topWall) {
-                            g.DrawLine(pen, x, y, x + xsize, y);
-                        }
-                        if (maze.cells[i, j].rightWall) {
-                            g.DrawLine(pen, x + xsize, y, x + xsize, y + ysize);
-                        }
-                        if (maze.cells[i, j].leftWall) {
-                            g.DrawLine(pen, x, y, x, y + ysize);
-                        }
-                        if (maze.cells[i, j].bottomWall) {
-                            g.DrawLine(pen, x, y + ysize, x + xsize, y + ysize);
-                        }
-
-                        if (agent != null && maze.cells[i, j].hasAgent) {
-                            g.FillEllipse(agentBrush, new Rectangle(x + 10, y + 10,
-                                xsize - padding * 4, ysize - padding * 4));
-                        }
-
-                        startPoint = new Point(startPoint.X + xsize, startPoint.Y);
-                    }
-                    startPoint = new Point(0, startPoint.Y + ysize);
+                if (newMaze) {
+                    agent = new Agent(maze, maze.startCell.position.X, maze.startCell.position.Y);
+                    newMaze = false;
                 }
+                maze.draw(g, panel1.Width, panel1.Height);
             }
         }
 
         private void buttonRefresh_Click(object sender, EventArgs e) {
             if (maze != null && agent != null) {
                 i = 0;
-                points = agent.buildPath(maze);
+                directions = agent.buildPath(maze);
                 aTimer = new System.Timers.Timer();
                 aTimer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
-                aTimer.Interval = 100;
+                aTimer.Interval = 
+                    ((Convert.ToInt32(nupWidth.Value) + Convert.ToInt32(nupHeight.Value)) / 2) * 10;
                 aTimer.Enabled = true;
                 buttonRefresh.Enabled = false;
                 
@@ -109,8 +62,8 @@ namespace Labyrinth {
 
         
         private void OnTimedEvent(object source, ElapsedEventArgs e) {
-            if (i < points.Count) {
-                agent.moveTo(maze, points[i]);
+            if (i < directions.Count) {
+                agent.moveTo(maze, directions[i]);
                 panel1.Invalidate();
                 i++;
             }

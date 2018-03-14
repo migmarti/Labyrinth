@@ -49,5 +49,36 @@ namespace Labyrinth.Classes {
             return deadEnd;
         }
 
+        public void draw(Graphics g, Pen pen, SolidBrush agentBrush, int x, int y, int xsize, int ysize, int padding) {
+
+            if (this.start) {
+                g.FillRectangle(new SolidBrush(Color.Green), new Rectangle(x + padding, y + padding,
+                    xsize - padding * 2, ysize - padding * 2));
+            }
+            else if (this.end) {
+                g.FillRectangle(new SolidBrush(Color.Red), new Rectangle(x + padding, y + padding,
+                    xsize - padding * 2, ysize - padding * 2));
+            }
+
+            if (this.hasAgent) {
+                g.FillEllipse(agentBrush, new Rectangle(x + xsize / 2 - (xsize / 4) / 2,
+                                y + xsize / 2 - (xsize / 4) / 2,
+                                (xsize / 4), (xsize / 4)));
+            }
+
+            if (this.topWall) {
+                g.DrawLine(pen, x, y, x + xsize, y);
+            }
+            if (this.rightWall) {
+                g.DrawLine(pen, x + xsize, y, x + xsize, y + ysize);
+            }
+            if (this.leftWall) {
+                g.DrawLine(pen, x, y, x, y + ysize);
+            }
+            if (this.bottomWall) {
+                g.DrawLine(pen, x, y + ysize, x + xsize, y + ysize);
+            }
+        }
+
     }
 }
