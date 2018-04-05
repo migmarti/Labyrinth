@@ -22,6 +22,15 @@ namespace Labyrinth.Classes {
 
             NodeList<Cell> traversedNodes = graph.getBestPath(maze.startCell, maze.endCell);
 
+            NodeList<Cell> traversedNodes2 = graph.AStar(maze.startCell, maze.endCell);
+
+            foreach (Node<Cell> node in traversedNodes2) {
+                Cell cell = node.Value;
+                //directions.Add(new Point(cell.position.X, cell.position.Y));
+                Console.WriteLine("[" + cell.position.X + "][" + cell.position.Y + "]");
+            }
+
+
             //NodeList<Cell> dlsNodes = graph.DLS(maze.startCell, maze.endCell, maze.height * maze.width);
 
             foreach (Node<Cell> node in traversedNodes) {

@@ -12,12 +12,18 @@ namespace Labyrinth.Classes {
         public bool visited { get; set; }
         public bool distanceSet { get; set; }
         public int distanceFromGoal { get; set; }
+        public double fScore { get; set; }
+        public double gScore { get; set; }
+        public Node<T> parent { get; set; }
 
 
         public Node(T data) {
             this.neighbors = new NodeList<T>();
             this.data = data;
             this.visited = false;
+            this.gScore = 1000000.0;
+            this.fScore = 1000000.0;
+            this.parent = null;
         }
 
         public Node() {
